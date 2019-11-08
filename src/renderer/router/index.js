@@ -3,12 +3,14 @@ import Router from 'vue-router'
 
 Vue.use(Router)
 
+const Main = () => import('../views/main')
+
 export default new Router({
   routes: [
     {
       path: '/',
-      name: 'landing-page',
-      component: require('@/components/LandingPage').default
+      name: 'main',
+      component: Main
     },
     {
       path: '*',

@@ -1,6 +1,6 @@
 <template>
   <div class="container">
-    <div>
+    <div style="margin-left: 100px;">
       <el-form label-suffix=":"
                label-width="60px">
         <el-form-item label="项目名">
@@ -8,7 +8,6 @@
                     disabled
                     v-model="projectName">
             <el-button slot="append"
-                       v-if="!projectName"
                        @click="openNewWindow">请选择</el-button>
           </el-input>
         </el-form-item>
@@ -89,18 +88,25 @@ export default {
     // 选择文件
     openNewWindow () {
       const { dialog } = require('electron').remote
-      dialog.showOpenDialog(null, {
+      dialog.showOpenDialog({
         properties: ['openDirectory']
       }, res => {
         this.projectPath = res[0]
         let arr = res[0].split('\\')
-        this.projectName = arr[arr.length - 1]
-        let data = this.$fs.readFileSync(`${this.projectPath}\\package.json`)
-        // console.log('res:', res, arr)
-        let { version, description } = JSON.parse(data.toString())
-        this.version = version
-        this.description = description
-        console.log('读取到的数据：', JSON.parse(data.toString()))
+        let packageJsonPath = `${this.projectPath}\\package.json`
+        if (this.$fs.existsSync(packageJsonPath)) {
+          this.projectName = arr[arr.length - 1]
+          let data = this.$fs.readFileSync(packageJsonPath)
+          let { version, description } = JSON.parse(data.toString())
+          this.version = version
+          this.description = description
+        } else {
+          dialog.showMessageBox({
+            title: '文件选择错误',
+            type: 'error',
+            message: '请选择正确的前端工程文件夹'
+          })
+        }
       })
     },
     getFilePath () {
@@ -151,9 +157,7 @@ export default {
 </script>
 
 <style lang="less">
+
 .container {
-  display: flex;
-  // align-items: center;
-  justify-content: center;
 }
 </style>
